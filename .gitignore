@@ -3,7 +3,8 @@ node_modules/
 
 # Environnement
 .env
-
+postgres.env
+certs/
 # VSCode
 .vscode/
 
