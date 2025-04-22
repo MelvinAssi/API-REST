@@ -1,5 +1,13 @@
 # API REST pour Gestion des Utilisateurs
-
+## Sommaire
+ - [Présentation](#présentation) 
+    - [Fonctionnalités](#fonctionnalités) 
+    - [Technologies](#technologies) 
+- [Démarrage](#démarrage) 
+    - [Prérequis](#prérequis) 
+    - [Installation](#installation) 
+- [Structure du Projet](#structure-du-projet)
+    
 ## Présentation
 
 Ce projet est une API REST conçue pour gérer des utilisateurs avec des opérations CRUD (Create, Read, Update, Delete). Elle permet l'inscription, l'authentification et la gestion des données des utilisateurs. L'API est construite avec une architecture MVC (Modèle-Vue-Contrôleur) et met l'accent sur la sécurité (authentification JWT, hachage des mots de passe avec bcrypt). Une interface frontend en React.js est prévue pour interagir avec l'API, et le projet est conteneurisé avec Docker.
@@ -21,7 +29,6 @@ Ce projet est une API REST conçue pour gérer des utilisateurs avec des opérat
 ### Technologies
 - **Backend** : Node.js, Express.js
 - **Base de données** : PostgreSQL
-- **Frontend** : React.js (à venir)
 - **Conteneurisation** : Docker, Docker Compose
 - **Sécurité** : JWT, bcrypt
 - **Tests** : Postman
@@ -41,35 +48,38 @@ Ce projet est une API REST conçue pour gérer des utilisateurs avec des opérat
 1. Cloner le dépôt :
    ```bash
    git clone https://github.com/MelvinAssi/API-REST.git
-   cd my-backend-express
-
+   cd API-REST/my-backend-express
+   ```  
 2. Installer les dépendances :   
-   npm install
-
+    ```bash
+    npm install
+    ``` 
 3. Créer un fichier .env à la racine du projet et ajouter les variables suivantes (remplacez par vos valeurs) :   
-
-DB_USER=postgres
-DB_HOST=localhost
-DB_NAME=api_users_db
-DB_PASSWORD=votre-mot-de-passe
-DB_PORT=5432
-PORT=5000
-JWT_SECRET=votre-secret-jwt
-NODE_ENV=development
-
+    ```bash
+    DB_USER=postgres
+    DB_HOST=localhost
+    DB_NAME=api_users_db
+    DB_PASSWORD=votre-mot-de-passe
+    DB_PORT=5432
+    PORT=5000
+    JWT_SECRET=votre-secret-jwt
+    NODE_ENV=development
+    ``` 
 4. (Optionnel) Lancer le projet avec Docker :
-docker-compose up --build #Cela démarrera l'API et la base de données PostgreSQL dans des conteneurs.
-
+    ```bash
+    docker-compose up --build 
+    ``` 
 5. (Sans Docker) Configurer la base de données PostgreSQL et créer la base api_users_db :
-
-CREATE DATABASE api_users_db;
-
+    ```sql
+    CREATE DATABASE api_users_db;
+    ``` 
 6. Lancer le serveur :
-
-npm start
-
+    ```bash
+    npm start
+    ``` 
 ## Structure du Projet
-api-rest-users/
+```text
+my-backend-express/
 ├── config/           # Configuration de la base de données
 ├── controllers/      # Logique de l'API (MVC)
 ├── models/           # Modèles de la base de données (MVC)
@@ -82,3 +92,7 @@ api-rest-users/
 ├── package.json      # Dépendances Node.js
 ├── server.js         # Point d'entrée de l'API
 └── README.md         # Documentation du projet
+``` 
+## Auteur
+
+- **Melvin Assi** – [GitHub](https://github.com/MelvinAssi)
