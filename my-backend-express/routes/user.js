@@ -5,13 +5,21 @@ const authMiddleware = require('../middleware/auth')
 
 const router = express.Router();
 router.get('/', authMiddleware, userController.fetchUserData);
-router.delete('/', authMiddleware, userController.deleteUser);
-router.put('/',authMiddleware, userController.updateUserData,
+router.put('/',authMiddleware,    
     [
-        body('email').optional().isEmail().withMessage('Invalid email'),
-        body('username').optional().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
-        body('password').isLength({ min: 12 }).withMessage('Password must be at least 12 characters'),
-        body('newpassword').optional().isLength({ min: 12 }).withMessage('Password must be at least 12 characters'),
-    ]
-)
+      body('newemail').optional({ checkFalsy: true }).isEmail().withMessage('Invalid email'),
+      body('newusername').optional({ checkFalsy: true }).isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
+      body('password').isLength({ min: 12 }).withMessage('Password must be at least 12 characters'),
+      body('newpassword').optional({ checkFalsy: true }).isLength({ min: 12 }).withMessage('New password must be at least 12 characters'),
+    ],
+    userController.updateUserData
+  );
+  
+  router.delete('/',
+    authMiddleware,
+    [
+      body('password').isLength({ min: 12 }).withMessage('Password must be at least 12 characters'),
+    ],
+    userController.deleteUser
+  );
 module.exports = router;

@@ -27,8 +27,21 @@ exports.fetchUserData = async (req, res) => {
 
 
 exports.deleteUser = async(req,res) =>{
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ error: errors.array()[0].msg });
+    }
     try{
+        const { password} = req.body;
         const id = req.user.id; 
+
+        const user = await userModel.findUserByID(id);
+        const isPasswordValid = await argon2.verify(user.password, password);
+        if (!isPasswordValid) {
+            return res.status(400).json({ error: 'Password error' });
+        }
+
+
         await userModel.deleteUserByID(id);
         res.json({
             message: 'Account delete with succes',
@@ -44,7 +57,7 @@ exports.deleteUser = async(req,res) =>{
     }
     const id = req.user.id; 
 
-    const { email, username, password, newpassword } = req.body;
+    const { newemail, newusername, password, newpassword } = req.body;
     try{
         
         const user = await userModel.findUserByID(id);
@@ -58,8 +71,8 @@ exports.deleteUser = async(req,res) =>{
         }
         const updatedUser = await userModel.updateUserByID(
             id,
-            email === "" ? null : email,
-            username === "" ? null : username,
+            newemail === "" ? null : newemail,
+            newusername === "" ? null : newusername,
             hashedPassword
         );
 
