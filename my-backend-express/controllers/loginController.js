@@ -20,8 +20,7 @@ const loginModel = require('../models/loginModel');
         const isPasswordValid = await argon2.verify(user.password, password);
          if (!isPasswordValid) {
             return res.status(400).json({ error: 'Password error' });
-         }
-  
+         } 
 
   
         const token = jwt.sign(
@@ -33,9 +32,26 @@ const loginModel = require('../models/loginModel');
           process.env.JWT_SECRET,
           { expiresIn: '1h' }
         );
-        const { password: passwordFromDb, ...userWithoutPassword } = user;
 
-        res.json({ message: 'Connexion réussie', user: userWithoutPassword, token });
+        res.cookie('token', token, {
+          httpOnly: true,
+          secure: true,          
+          sameSite: 'None',      
+          maxAge: 60 * 60 * 1000,
+        });
+        
+        res.status(201).json({
+           message: "Connexion succes" ,
+           user: {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            is_admin: user.is_admin,
+            created_at: user.created_at
+          }
+        });
+
+
       } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Erreur serveur' });

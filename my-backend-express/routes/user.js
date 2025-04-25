@@ -4,9 +4,9 @@ const userController = require('../controllers/userController');
 const authMiddleware = require('../middleware/auth')
 
 const router = express.Router();
-router.get('/:id', authMiddleware, userController.fetchUserData);
-router.delete('/:id', authMiddleware, userController.deleteUser);
-router.put('/:id',authMiddleware, userController.updateUserData,
+router.get('/', authMiddleware, userController.fetchUserData);
+router.delete('/', authMiddleware, userController.deleteUser);
+router.put('/',authMiddleware, userController.updateUserData,
     [
         body('email').optional().isEmail().withMessage('Invalid email'),
         body('username').optional().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
