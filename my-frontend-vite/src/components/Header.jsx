@@ -2,9 +2,10 @@ import { useEffect,useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from "styled-components";
 import { AuthContext } from '../contexts/AuthContext';
+import BurgerMenu from './BurgerMenu';
 
 
-const HeaderContainer = styled.header`
+const HeaderContainer = styled.div`
   height:auto;
   width:100%;
   padding: 10px;
@@ -28,6 +29,9 @@ const HeaderContainer = styled.header`
   a {
     text-decoration: none;
   }
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 const StyledH3 = styled.h3`
   color: #F6F4F4;
@@ -35,6 +39,13 @@ const StyledH3 = styled.h3`
   &:hover{
     color: #FF7517; 
   }
+`;
+const Button = styled.button`
+  background-color: rgba(0,0,0,0);
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
 `;
 
 const Header = () => {
@@ -61,7 +72,7 @@ const Header = () => {
       {user.is_admin && (
       <li><Link to="/admin"><StyledH3>Admin</StyledH3></Link></li>
       )}
-      <li><button onClick={LogOut}><StyledH3>Logout</StyledH3></button></li>
+      <li><Button onClick={LogOut}><StyledH3>Logout</StyledH3></Button></li>
     </>
   ):(
     <>      
@@ -69,13 +80,19 @@ const Header = () => {
       <li><Link to="/signup"><StyledH3>Signup</StyledH3></Link></li>
     </>
   );
-    return (      
-      <HeaderContainer>
-        <ul>
-          <li><Link to="/"><StyledH3>Home</StyledH3></Link></li>
-          {PagesLinks}
-        </ul>   
-      </HeaderContainer>
+    return (    
+      <>        
+        <header>
+          <BurgerMenu></BurgerMenu> 
+          <HeaderContainer>          
+            <ul>
+              <li><Link to="/"><StyledH3>Home</StyledH3></Link></li>
+              {PagesLinks}
+            </ul>   
+          </HeaderContainer>
+        </header>
+      </> 
+
     );
   };
 

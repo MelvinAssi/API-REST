@@ -59,17 +59,3 @@ exports.registerUser = async(req,res)=>{
     }
 }
 
-exports.getAllUsers = async(req,res) =>{
-    try {
-    
-        const users = await usersModel.getAllUsers();
-    
-        const safeUsers = users.map(({ password, ...user }) => user);
-    
-        res.json({ users: safeUsers });
-    
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Erreur serveur: " + error.message });
-      }
-}

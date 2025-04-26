@@ -15,6 +15,7 @@ const usersRoutes = require('./routes/users');
 const loginRoutes = require('./routes/login');
 const logoutRoutes = require('./routes/logout');
 const userRoutes = require('./routes/user');
+const adminRoutes =require('./routes/admin');
 
 
 app.use(cors({
@@ -27,6 +28,7 @@ app.use('/users', usersRoutes);
 app.use('/login',loginRoutes);
 app.use('/logout',logoutRoutes);
 app.use('/user',userRoutes);
+app.use('/admin',adminRoutes);
 
 
 

@@ -9,3 +9,9 @@ CREATE TABLE users (
 
 CREATE INDEX idx_users_is_admin ON users(is_admin);
 CREATE INDEX idx_users_created_at ON users(created_at);
+
+
+
+INSERT INTO users (username, email, password, is_admin)
+VALUES 
+  ('Melvin', 'melvinassi@gmail.com', '$argon2id$v=19$m=65536,t=3,p=4$/eyhc6WojGZlFOAs+/rD3Q$MwITe7BeuqDwZDt3Lnca6ZX0m/uD8YIaQAerwKLSQvk', TRUE);

@@ -9,13 +9,14 @@ const PageContainer = styled.main`
     justify-content:center;
     background-color :#F6F4F4;
 `;
+const StyledH1 = styled.h1`
+  color: #FF7517;  
+`;
 //#FF7517#3E3939#2C2727#F6F4F4
 const HomePage = () => {
     return (      
       <PageContainer>
-        <h1>Titre</h1>
-        <h2>Sous Titre</h2>
-        <p>Paragraphe</p>
+        <StyledH1>Api Rest</StyledH1>
       </PageContainer>
     );
   };

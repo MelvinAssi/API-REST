@@ -17,8 +17,5 @@ exports.creatUser = async(username,email,hash) => {
     return result.rows[0];
 };
 
-exports.getAllUsers = async () => {
-    const result = await pool.query('SELECT * FROM users');
-    return result.rows;
-};
+
 
