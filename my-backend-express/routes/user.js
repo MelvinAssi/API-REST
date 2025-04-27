@@ -15,7 +15,7 @@ router.put('/',authMiddleware,
     userController.updateUserData
   );
   
-  router.delete('/',
+router.delete('/',
     authMiddleware,
     [
       body('password').isLength({ min: 12 }).withMessage('Password must be at least 12 characters'),

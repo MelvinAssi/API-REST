@@ -8,6 +8,6 @@ const router = express.Router();
 router.post('/', [
   body('email').isEmail().withMessage('Invalid email'),
   body('password').isLength({ min: 12 }).withMessage('Password must be at least 12 characters'),
-],verifyRecaptcha, loginController.loginUser);
+], loginController.loginUser);
 
 module.exports = router;
