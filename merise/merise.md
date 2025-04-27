@@ -12,8 +12,13 @@
 9. Les mots de passe ne sont jamais retournés dans les réponses.
 10. Les données sont stockées dans PostgreSQL.
 11. Certains utilisateurs ont un rôle d'administrateur, leur donnant des privilèges supplémentaires.
-12. L'accès à l'interface d'administration (ex. : GET /users) est réservé aux administrateurs.
+12. L'accès à l'interface d'administration (ex. : GET /admin) est réservé aux administrateurs.
 13. Le rôle d'administrateur est défini à la création et peut être modifié.
+14. Une recette est toujours créée par un utilisateur.
+15. Une recette a un nom, des ingrédients, des instructions de préparation.
+16. Chaque recette peut être modifiée ou supprimée uniquement par son créateur (ou un admin).
+17. Les recettes ont une date de création automatique.
+18. Les utilisateurs peuvent consulter les recettes  des autres.
 
 ## Dictionnaire de Données
 
@@ -24,7 +29,17 @@
 | email        | Adresse email                        | Chaîne (100)  | Non nul, unique, format email      | Utilisé pour l'authentification          |
 | password     | Mot de passe haché                   | Chaîne (255)  | Non nul                            | Haché avec bcrypt                        |
 | is_admin     | Indique si l'utilisateur est admin   | Booléen       | Non nul, défaut FALSE              | TRUE pour les administrateurs            |
-| created_at   | Date de création                     | Date/Heure    | Non nul, défaut CURRENT_TIMESTAMP  | Enregistré à l'inscription               |
+| created_at   | Date de création                     | Timestamp     | Non nul, défaut CURRENT_TIMESTAMP  | Enregistré à l'inscription               |
+| id	         | Identifiant unique	                  | Entier	      | Clé primaire, auto-incrémenté	     | Généré par PostgreSQL                    |
+| user_id	     | Référence vers l’utilisateur	        | Entier	      | Clé étrangère (users.id), non nul	 | Créateur de la recette                   |
+| name	       | Nom de la recette	                  | Chaîne (255)	| Non nul	                           | Titre visible                            |
+| ingredients	 | Liste des ingrédients	              | Texte	        | Non nul	Format                     | texte ou JSON                            |
+| instructions | Étapes de préparation	              | Texte         |	Non nul	                           | texte ou JSON                            |
+| created_at	 | Date de création	                    | Timestamp	    | Non nul, défaut CURRENT_TIMESTAMP  | Automatique                              |
+
+
+
+
 
 ## MCD (Modèle Conceptuel de Données)
 ### Entité : USER
@@ -38,9 +53,24 @@
 - **Contraintes** :
   - Clé primaire : id
   - Unicité : username, email
-- **Relations** : Aucune (entité unique)
+- **Relations** :
+  - Un utilisateur possède plusieurs recettes (1,N)
+### Entité : RECIPE
+- **Identifiant** : id
+- **Attributs** :
+  - name : non nul
+  - ingredients : non nul
+  - instructions : non nul
+  - created_at : automatique
+- **Relations** :
+  - Une recette appartient à un seul utilisateur (N,1)
+  
+  ![MCD](MCD.jpg)
 
 ## MLD (Modèle Logique de Données)
+
+![MLD](MLD.jpg)
+
 ### Table : users
 ```sql
 CREATE TABLE users (
@@ -51,3 +81,13 @@ CREATE TABLE users (
     is_admin BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE recipes (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    ingredients TEXT NOT NULL,
+    instructions TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
