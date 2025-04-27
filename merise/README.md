@@ -62,14 +62,16 @@
   - ingredients : non nul
   - instructions : non nul
   - created_at : automatique
+ - **Contraintes** :
+  - Clé primaire : id
 - **Relations** :
   - Une recette appartient à un seul utilisateur (N,1)
-  
+
   ![MCD](MCD.jpg)
 
 ## MLD (Modèle Logique de Données)
 
-![MLD](MLD.jpg)
+  ![MLD](MLD.jpg)
 
 ### Table : users
 ```sql
