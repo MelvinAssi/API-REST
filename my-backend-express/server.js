@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const csrfMiddleware = require('./middleware/csrfMiddleware');
 require('dotenv').config();
 
 const app = express();
@@ -19,10 +21,42 @@ const adminRoutes =require('./routes/admin');
 const recipesRoutes = require('./routes/recipes')
 
 
+
 app.use(cors({
     origin: ['https://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
+
+
+app.use(helmet());
+app.use(helmet.hsts({
+  maxAge: 63072000,
+  includeSubDomains: true,
+  preload: true
+}));
+
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", 
+    "default-src 'self';" + 
+    "script-src 'self' https://www.google.com;" +
+    "style-src 'self';" +
+    "img-src 'self' data:;" +
+    "font-src 'self';" +
+    "connect-src 'self' https://www.google.com https://localhost:5173;" +
+    "form-action 'self';" +
+    "frame-ancestors 'none';" +
+    "upgrade-insecure-requests;");
+  next();
+});
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100,
+});
+
+app.use(limiter)
 
 
 app.use('/users', usersRoutes);

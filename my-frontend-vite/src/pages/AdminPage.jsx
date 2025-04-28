@@ -2,6 +2,7 @@ import styled from "styled-components";
 import axios from '../services/axios.jsx'
 import { useState, useEffect ,useRef} from "react";
 import AdminModal from "../components/AdminModal.jsx";
+import TextareaAutosize from 'react-textarea-autosize';
 
 const PageContainer = styled.main`
     min-height: 100vh;
@@ -37,6 +38,9 @@ const StyledP = styled.p`
 const StyledH5 = styled.h5`
 
 `;
+const StyledH2 = styled.h2`
+ 
+`;
 
 const TableCell = styled.td`
   padding: 10px;
@@ -68,6 +72,20 @@ const Button = styled.button`
 
   @media (max-width: 768px) {
   }
+`;
+const Tab = styled.button`
+  color:#2C2727;
+  background-color: none;
+  border: none;
+  padding:10px;
+  cursor: pointer;
+`;
+const TextArea = styled(TextareaAutosize)`
+  width:95%;
+  background-color:#F6F4F4;
+  border: none;
+  resize: none;
+  margin:10px;
 `;
 
 const AdminPage = () => {
@@ -299,8 +317,8 @@ const AdminPage = () => {
     <PageContainer>
       <StyledH1>Admin</StyledH1>
       <div>
-        <button onClick={() => setTabUsers(true)}>Users</button>
-        <button onClick={() => setTabUsers(false)}>Recipes</button>
+        <Tab onClick={() => setTabUsers(true)}><StyledH2>Users</StyledH2></Tab>
+        <Tab onClick={() => setTabUsers(false)}><StyledH2>Recipes </StyledH2></Tab>
       </div>
 
 
@@ -415,8 +433,8 @@ const AdminPage = () => {
         ) : (
             <>
             <div>
-              <button onClick={updateRecipe}>Update</button>
-              <button onClick={deleteRecipe}>Delete</button>
+              <Button onClick={updateRecipe}>Update</Button>
+              <Button onClick={deleteRecipe}>Delete</Button>
             </div>
             <Table>
               <thead>
@@ -447,7 +465,7 @@ const AdminPage = () => {
                       <p>{recipe.user_id}</p>
                     </TableCell>
                     <TableCell>
-                      <input
+                      <Input
                         type="text"
                         value={recipe.name}
                         onChange={(e) => {
@@ -458,7 +476,7 @@ const AdminPage = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <textarea
+                      <TextArea
                         value={recipe.ingredients}
                         onChange={(e) => {
                           const updatedRecipes = [...recipes];
@@ -468,7 +486,7 @@ const AdminPage = () => {
                       />     
                     </TableCell>
                     <TableCell>
-                      <textarea
+                      <TextArea
                           value={recipe.instructions}
                           onChange={(e) => {
                             const updatedRecipes = [...recipes];

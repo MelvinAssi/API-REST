@@ -10,11 +10,12 @@ const PageContainer = styled.main`
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
+    justify-content:start;
     background-color :#F6F4F4;
 `;
 const StyledH1 = styled.h1`
   color: #FF7517;  
+  padding:20px; 
 `;
 const StyledP = styled.p`
   color: #2C2727; 
@@ -23,7 +24,19 @@ const StyledP = styled.p`
   } 
 `;
 const StyledH5 = styled.h5`
-
+  color: #2C2727;
+`;
+const Informations =styled.div`
+  display: flex;
+  flex-direction: column;
+  gap:10px;
+  padding:20px;
+`;
+const ButtonContainer=styled.div`
+    display: flex;
+    flex-direction: row;
+    gap:10px;
+    padding:20px;
 `;
 const Form = styled.form`
     display:flex;
@@ -123,13 +136,18 @@ const ProfilePage = () => {
 
     return (      
       <PageContainer>
-        <StyledH1>Profile</StyledH1>
 
-        <p>Email : {user.email}</p>
-        <p>Username  : {user.username}</p>
-        <p>Account created at {user.created_at}</p>
-        <Button onClick={() => setShowUpdateModal(true)}><StyledH5>Update Account</StyledH5></Button>
-        <Button onClick={() => setShowDeleteModal(true)}><StyledH5>Delete Account</StyledH5></Button>
+        <StyledH1>Profile</StyledH1>
+        <Informations>
+          <StyledH5>Email : {user.email}</StyledH5>
+          <StyledH5>Username  : {user.username}</StyledH5>
+          <StyledH5>Account created at {user.created_at}</StyledH5>
+        </Informations>
+        <ButtonContainer>
+          <Button onClick={() => setShowUpdateModal(true)}><StyledH5>Update Account</StyledH5></Button>
+          <Button onClick={() => setShowDeleteModal(true)}><StyledH5>Delete Account</StyledH5></Button>
+        </ButtonContainer>
+
 
 
         {showUpdateModal && (

@@ -1,8 +1,10 @@
 import styled from "styled-components";
-import ReCAPTCHA from 'react-google-recaptcha'; 
-import { useRef, useState, useContext } from 'react'; 
-import { Link, useNavigate, useLocation } from "react-router-dom"; 
+import ReCAPTCHA from 'react-google-recaptcha';
+import { useState, useRef, useContext } from 'react';
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext.jsx";
+import { Formik, Form as FormikForm, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 const PageContainer = styled.main`
     min-height:100vh;
@@ -12,19 +14,7 @@ const PageContainer = styled.main`
     justify-content:center;
     background-color :#F6F4F4;
 `;
-const StyledH1 = styled.h1`
-  color: #FF7517;  
-`;
-const StyledP = styled.p`
-  color: #2C2727; 
-  a{
-    color: #2C2727;
-  } 
-`;
-const StyledH5 = styled.h5`
-
-`;
-const Form = styled.form`
+const StyledForm = styled.div`
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -39,98 +29,132 @@ const Form = styled.form`
 
   }
 `;
+const StyledH1 = styled.h1`
+  color: #FF7517;
+`;
+
+const StyledP = styled.p`
+  color: #2C2727;
+  a {
+    color: #2C2727;
+  }
+`;
 
 const Input = styled.input`
-  padding: 4px 8px ;
+  padding: 4px 8px;
   border-radius:16px;
   font-size:1.2rem;
-  background-color:#F6F4F4; 
+  background-color:#F6F4F4;
   color:#2C2727;
-  @media (max-width: 768px) {
-  }
 `;
-const Label=styled.label`
+
+const Label = styled.label`
   font-size:1.2rem;
   color:#F6F4F4;
-  @media (max-width: 768px) {
-  }
 `;
-const Button = styled.button`
-  border-radius : 16px;
-  padding : 5px 20px;
-  background-color : #FF7517;
-  color:#3E3939;
 
-  @media (max-width: 768px) {
+const Button = styled.button`
+  border-radius: 16px;
+  padding: 5px 20px;
+  background-color: #FF7517;
+  color:#3E3939;
+  cursor: pointer;
+
+  &:disabled {
+    background-color: #D3D3D3;
+    cursor: not-allowed;
   }
 `;
 
 const ReCAPTCHACenterWrapper = styled.div`
     overflow-x: visible;
-  div {
-    overflow-x: visible;
-  }
-  @media (max-width: 768px) {
-  }
+    div {
+      overflow-x: visible;
+    }
 `;
 
+const validationSchema = Yup.object({
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(12, 'Password must be at least 12 characters')
+    .matches(/[A-Z]/, 'Password must contain an uppercase letter')
+    .matches(/[a-z]/, 'Password must contain a lowercase letter')
+    .matches(/\d/, 'Password must contain a number')
+    .required('Password is required'),
+});
+
 const LoginPage = () => {
-    const [recaptchaToken, setRecaptchaToken] = useState(null);
-    const navigate = useNavigate();
-    const formRef = useRef();
-    const inputs = useRef([]);
-    const recaptchaRef = useRef();
-    const {login} = useContext(AuthContext);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const recaptchaRef = useRef();
+  const { login } = useContext(AuthContext);
 
-   
-    const addInputs = (el) => {
-      if (el && !inputs.current.includes(el)) {
-        inputs.current.push(el);
-      }
-    };
-    const handleRecaptchaChange = (value) => {
-      setRecaptchaToken(value);
-    };
-    const handleForm = async (e) => {
-        e.preventDefault();    
-        if (!recaptchaToken) return;
+  const handleRecaptchaChange = (value) => {
+    setRecaptchaToken(value);
+  };
 
-        const data = {
-        email: inputs.current[0]?.value,
-        password: inputs.current[1]?.value,
-        };
-        try {
-            await login(data, recaptchaToken);
-            navigate('/');
-        } catch (error) {
+  const handleSubmit = async (values) => {
+    if (!recaptchaToken) return;
 
-         }
-        setRecaptchaToken(null);
-        recaptchaRef.current.reset();
+    const data = {
+      email: values.email,
+      password: values.password,
     };
 
-    return (      
-      <PageContainer>        
-        <Form ref={formRef} onSubmit={handleForm}>
-          <StyledH1>Login</StyledH1>
-                <Label>Email
-                    <Input
-                    ref={addInputs}
-                    type="email"
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,}" 
-                    required
-                    aria-label="write your email"
-                    />   
-                </Label>
-                <Label>
-                    Password
-                    <Input
-                        ref={addInputs}
-                        type="password"
-                        required
-                        aria-label="write your password"
-                    />
-                </Label>
+    try {
+      setLoading(true);
+      await login(data, recaptchaToken);
+      navigate('/');
+    } catch (error) {
+      console.error("Login error: ", error);
+    } finally {
+      setLoading(false);
+      setRecaptchaToken(null);
+      recaptchaRef.current.reset();
+    }
+  };
+
+  return (
+    <PageContainer>
+      <Formik
+        initialValues={{
+          email: '',
+          password: '',
+        }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting }) => (
+          <FormikForm>
+            <StyledForm>
+              <StyledH1>Login</StyledH1>
+
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Field
+                  id="email"
+                  name="email"
+                  type="email"
+                  as={Input}
+                  aria-label="Write your email"
+                />
+                <ErrorMessage name="email" component="div" style={{ color: 'red' }} />
+              </div>
+
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Field
+                  id="password"
+                  name="password"
+                  type="password"
+                  as={Input}
+                  aria-label="Write your password"
+                />
+                <ErrorMessage name="password" component="div" style={{ color: 'red' }} />
+              </div>
 
               <ReCAPTCHACenterWrapper>
                 <ReCAPTCHA
@@ -139,17 +163,24 @@ const LoginPage = () => {
                   onChange={handleRecaptchaChange}
                   size="normal"
                 />
-              </ReCAPTCHACenterWrapper>              
-              <div>
-                <Button type="submit" disabled={!recaptchaToken}><StyledH5>Login</StyledH5></Button>
-              </div>            
-          </Form>
-          <StyledP>
-            You don't have a account ? <Link to="/signup">Sign up Now !!!</Link>
-          </StyledP>
-      </PageContainer>
-      
-    );
-  };
+              </ReCAPTCHACenterWrapper>
 
-  export default LoginPage;
+              <div>
+                <Button type="submit" disabled={isSubmitting || !recaptchaToken}>
+                  {loading ? 'Logging In...' : 'Login'}
+                </Button>
+              </div>
+            </StyledForm>
+            
+          </FormikForm>
+        )}
+      </Formik>
+
+      <StyledP>
+        You don't have an account? <Link to="/signup">Sign up Now !!!</Link>
+      </StyledP>
+    </PageContainer>
+  );
+};
+
+export default LoginPage;
