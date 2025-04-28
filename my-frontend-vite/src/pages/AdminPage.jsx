@@ -71,32 +71,38 @@ const Button = styled.button`
 `;
 
 const AdminPage = () => {
+  const [tabUsers,setTabUsers]= useState(true)
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [isCheckAll, setIsCheckAll] = useState(false);
   const [isCheck, setIsCheck] = useState([]);
 
+  const [isCheckRecipeAll, setIsCheckReceipeAll] = useState(false);
+  const [isCheckRecipe, setIsCheckRecipe] = useState([]);
+
   const [showModal, setShowModal] = useState(false);
   const [modalActionType, setModalActionType] = useState(""); 
 
   const [newUsers, setNewUsers] = useState([]);
 
-const openModal = (actionType) => {
-  setModalActionType(actionType);
-  setShowModal(true);
-};
+  const [recipes, setRecipes] = useState([]);
 
-const handleConfirmAction = (password) => {
-  if (modalActionType === 'delete') {
-    deleteUser(password);
-  } else if (modalActionType === 'update') {
-    updateUser(password);
-  } else if (modalActionType === 'create') {
-    createUser(password);
-  }
-  setShowModal(false);
-};
+  const openModal = (actionType) => {
+    setModalActionType(actionType);
+    setShowModal(true);
+  };
+
+  const handleConfirmAction = (password) => {
+    if (modalActionType === 'delete') {
+      deleteUser(password);
+    } else if (modalActionType === 'update') {
+      updateUser(password);
+    } else if (modalActionType === 'create') {
+      createUser(password);
+    }
+    setShowModal(false);
+  };
 
   const handleSelectAll = () => {
     if (!isCheckAll) {
@@ -119,6 +125,7 @@ const handleConfirmAction = (password) => {
 
   useEffect(() => {
     getUsers();
+    getRecipes();
   }, []);
   
 
@@ -179,7 +186,7 @@ const handleConfirmAction = (password) => {
       console.error('Error update users :', error);
     }
   }
-  const createUser =async(adminpassword) => {
+  const createUser = async(adminpassword) => {
     try {
       await Promise.all(
         newUsers.map(newUser => {
@@ -215,116 +222,277 @@ const handleConfirmAction = (password) => {
   const deleteNewUser = () => {
     setNewUsers(prev => prev.slice(0, -1));
   };
+
+  const getRecipes = async () => {
+    try {
+      const response = await axios.get("/recipes");
+      setRecipes(response.data.recipes);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetch recipes :', error);
+      setLoading(false); 
+    }
+  };
+
+  const updateRecipe =async() => {
+    setLoading(true); 
+    try {
+          await Promise.all(
+            isCheckRecipe.map(id => {
+              const recipe = recipes.find(r => r.id.toString() === id);
+              return axios.put("/recipes/admin/"+id, {
+                name: recipe.name,
+                ingredients: recipe.ingredients,
+                instructions: recipe.instructions,
+              });
+            })
+          );
+          setIsCheck([]);
+          getRecipes();
+          setLoading(false);
+        } catch (error) {
+          console.error('Error Update recipes :', error);
+          setLoading(false); 
+        }
+  }
+  const deleteRecipe =async() => {
+    setLoading(true); 
+    try {
+      await Promise.all(
+        isCheckRecipe.map(id =>  {
+          const response =  axios.delete("/recipes/admin/"+id);
+        })              
+      );
+        setIsCheck([]);
+        getRecipes();
+        setLoading(false);
+      } catch (error) {
+        console.error('Error Delete recipes :', error);
+        setLoading(false); 
+      }
+  }
+
+  const handleSelectRecipeAll = () => {
+    if (!isCheckRecipeAll) {
+      const allIds = recipes.map(recipe => recipe.id.toString());
+      setIsCheckRecipe(allIds);
+    } else {
+      setIsCheckRecipe([]);
+    }
+    setIsCheckReceipeAll(!isCheckRecipeAll); 
+  };
+  
+  const handleClickRecipe = (e) => {
+    const { id, checked } = e.target;
+  
+    if (checked) {
+      setIsCheckRecipe(prev => [...prev, id]);
+    } else {
+      setIsCheckRecipe(prev => prev.filter(item => item !== id));
+    }
+  };
+  
+
+
+
   return (
     <PageContainer>
       <StyledH1>Admin</StyledH1>
-      <div style={{padding:"20px" }}>
-        <Button onClick={() => openModal('update')}>Update</Button>
-        <Button onClick={addNewUser}>+</Button>
-        <Button onClick={deleteNewUser}>-</Button>
-        <Button onClick={() => openModal('create')}>Create</Button>
-        <Button onClick={() => openModal('delete')}>Delete</Button>
+      <div>
+        <button onClick={() => setTabUsers(true)}>Users</button>
+        <button onClick={() => setTabUsers(false)}>Recipes</button>
       </div>
+
+
 
 
       {loading ? (
         <p>Loading...</p>
       ) : (
         <>
-          <Table>
-            <thead>
-              <tr>
-                <TableHeader><input type="checkbox" onChange={handleSelectAll} checked={isCheckAll}/> </TableHeader>
-                <TableHeader>id</TableHeader>
-                <TableHeader>Username</TableHeader>
-                <TableHeader>Email</TableHeader>
-                <TableHeader>Admin</TableHeader>
-                <TableHeader>Created At</TableHeader>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user, index) => (
-                <tr key={user.id}>
-                  <TableCell><input type="checkbox" id={user.id}  onChange={handleClick} checked={isCheck.includes(user.id.toString())}/> </TableCell>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell> <Input type="text"  value={user.username}
-                      onChange={(e) => {
-                        const updatedUsers = [...users];
-                        updatedUsers[index].username = e.target.value;
-                        setUsers(updatedUsers);
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell><Input type="email" value={user.email}
-                      onChange={(e) => {
-                        const updatedUsers = [...users];
-                        updatedUsers[index].email = e.target.value;
-                        setUsers(updatedUsers);
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell><input type="checkbox" checked={user.is_admin}
-                      onChange={(e) => {
-                        const updatedUsers = [...users];
-                        updatedUsers[index].is_admin = e.target.checked;
-                        setUsers(updatedUsers);
-                      }}                  
-                  />
-                  </TableCell>
-                  <TableCell>{user.created_at}</TableCell>
+        {tabUsers ? (
+          <>
+            <div style={{padding:"20px" }}>
+              <Button onClick={() => openModal('update')}>Update</Button>
+              <Button onClick={addNewUser}>+</Button>
+              <Button onClick={deleteNewUser}>-</Button>
+              <Button onClick={() => openModal('create')}>Create</Button>
+              <Button onClick={() => openModal('delete')}>Delete</Button>
+            </div>
+            <Table>
+              <thead>
+                <tr>
+                  <TableHeader><input type="checkbox" onChange={handleSelectAll} checked={isCheckAll}/> </TableHeader>
+                  <TableHeader>id</TableHeader>
+                  <TableHeader>Username</TableHeader>
+                  <TableHeader>Email</TableHeader>
+                  <TableHeader>Admin</TableHeader>
+                  <TableHeader>Created At</TableHeader>
                 </tr>
-              ))}
-              {newUsers.map((user, index) => (
-                <tr key={user.id}>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell>
-                    <Input
-                      type="text"
-                      value={user.username}
-                      onChange={(e) => {
-                        const updated = [...newUsers];
-                        updated[index].username = e.target.value;
-                        setNewUsers(updated);
-                      }}
+              </thead>
+              <tbody>
+                {users.map((user, index) => (
+                  <tr key={user.id}>
+                    <TableCell><input type="checkbox" id={user.id}  onChange={handleClick} checked={isCheck.includes(user.id.toString())}/> </TableCell>
+                    <TableCell>{user.id}</TableCell>
+                    <TableCell> <Input type="text"  value={user.username}
+                        onChange={(e) => {
+                          const updatedUsers = [...users];
+                          updatedUsers[index].username = e.target.value;
+                          setUsers(updatedUsers);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell><Input type="email" value={user.email}
+                        onChange={(e) => {
+                          const updatedUsers = [...users];
+                          updatedUsers[index].email = e.target.value;
+                          setUsers(updatedUsers);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell><input type="checkbox" checked={user.is_admin}
+                        onChange={(e) => {
+                          const updatedUsers = [...users];
+                          updatedUsers[index].is_admin = e.target.checked;
+                          setUsers(updatedUsers);
+                        }}                  
                     />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      type="email"
-                      value={user.email}
-                      onChange={(e) => {
-                        const updated = [...newUsers];
-                        updated[index].email = e.target.value;
-                        setNewUsers(updated);
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      checked={user.is_admin}
-                      onChange={(e) => {
-                        const updated = [...newUsers];
-                        updated[index].is_admin = e.target.checked;
-                        setNewUsers(updated);
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell></TableCell>
+                    </TableCell>
+                    <TableCell>{user.created_at}</TableCell>
+                  </tr>
+                ))}
+                {newUsers.map((user, index) => (
+                  <tr key={user.id}>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell>
+                      <Input
+                        type="text"
+                        value={user.username}
+                        onChange={(e) => {
+                          const updated = [...newUsers];
+                          updated[index].username = e.target.value;
+                          setNewUsers(updated);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="email"
+                        value={user.email}
+                        onChange={(e) => {
+                          const updated = [...newUsers];
+                          updated[index].email = e.target.value;
+                          setNewUsers(updated);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={user.is_admin}
+                        onChange={(e) => {
+                          const updated = [...newUsers];
+                          updated[index].is_admin = e.target.checked;
+                          setNewUsers(updated);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell></TableCell>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>  
+            {showModal && (
+              <AdminModal
+                actionType={modalActionType} // 'delete', 'update' ou 'create'
+                onConfirm={handleConfirmAction}
+                onClose={() => setShowModal(false)}
+              />
+      )}  
+          </>   
+        ) : (
+            <>
+            <div>
+              <button onClick={updateRecipe}>Update</button>
+              <button onClick={deleteRecipe}>Delete</button>
+            </div>
+            <Table>
+              <thead>
+                <tr>
+                  <TableHeader><input type="checkbox" onChange={handleSelectRecipeAll} checked={isCheckRecipeAll}/> </TableHeader>
+                  <TableHeader>id</TableHeader>
+                  <TableHeader>user id</TableHeader>
+                  <TableHeader>name</TableHeader>
+                  <TableHeader>Ingredients</TableHeader>
+                  <TableHeader>instructions</TableHeader>
                 </tr>
-              ))}
-            </tbody>
-          </Table>    
-        </>     
+              </thead>
+              <tbody>
+              {recipes.map(( recipe, index) => (
+                <tr key={recipe.id}>
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        id={recipe.id}
+                        onChange={handleClickRecipe}
+                        checked={isCheckRecipe.includes(recipe.id.toString())}
+                      />
+                    </TableCell>                    
+                    <TableCell>
+                      <p>{recipe.id}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p>{recipe.user_id}</p>
+                    </TableCell>
+                    <TableCell>
+                      <input
+                        type="text"
+                        value={recipe.name}
+                        onChange={(e) => {
+                          const updatedRecipes = [...recipes];
+                          updatedRecipes[index].name = e.target.value;
+                          setRecipes(updatedRecipes);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <textarea
+                        value={recipe.ingredients}
+                        onChange={(e) => {
+                          const updatedRecipes = [...recipes];
+                          updatedRecipes[index].ingredients = e.target.value;
+                          setRecipes(updatedRecipes);
+                        }}
+                      />     
+                    </TableCell>
+                    <TableCell>
+                      <textarea
+                          value={recipe.instructions}
+                          onChange={(e) => {
+                            const updatedRecipes = [...recipes];
+                            updatedRecipes[index].instructions = e.target.value;
+                            setRecipes(updatedRecipes);
+                          }}
+                      />
+                    </TableCell>
+                </tr>
+                     
+              ))}      
+              </tbody>
+            </Table>  
+
+
+
+ 
+          </>
+        )}
+        </>
+
+  
       )}
-      {showModal && (
-        <AdminModal
-          actionType={modalActionType} // 'delete', 'update' ou 'create'
-          onConfirm={handleConfirmAction}
-          onClose={() => setShowModal(false)}
-        />
-      )}
+
 
     </PageContainer>
   );

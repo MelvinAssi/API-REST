@@ -69,6 +69,7 @@ const Header = () => {
   const PagesLinks = user?(
     <>
       <li><Link to="/profile"><StyledH3>Profile</StyledH3></Link></li>
+      <li><Link to="/recipes"><StyledH3>Recipes</StyledH3></Link></li>
       {user.is_admin && (
       <li><Link to="/admin"><StyledH3>Admin</StyledH3></Link></li>
       )}

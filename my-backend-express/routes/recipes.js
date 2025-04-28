@@ -39,7 +39,7 @@ router.delete('/me/:id', authMiddleware, recipesController.deleteRecipeById);
 
 
 router.delete('/admin/:id', authMiddleware,isAdminMiddleware,recipesController.deleteRecipeByIdAdmin );
-router.put('/admin/:id', authMiddleware,isAdminMiddleware
+router.put('/admin/:id', authMiddleware,isAdminMiddleware,
     [
         body('name').optional().isLength({ min: 2 }),
         body('ingredients').optional().notEmpty(),
